@@ -52,10 +52,9 @@ def get_script(relative_link):
         print(imdb)
         script_url = BASE_URL + script_link
         script_soup = BeautifulSoup(requests.get(script_url).text, "html.parser")
+        script_soup.table.decompose()
         script_text = script_soup.find_all('td', {'class': "scrtext"})[0]
-        print(script_text)
-        script_text = clean_script(script_text)
-        return imdb, script_text
+        return imdb, script_text.prettify()
     else:
         print('%s is a pdf :(' % tail)
         return None, None
@@ -77,5 +76,5 @@ if __name__ == "__main__":
         if not script:
             continue
 
-        with open(os.path.join(SCRIPTS_DIR, id + '.txt'), 'w', encoding='utf-8') as outfile:
+        with open(os.path.join(SCRIPTS_DIR, id + '.html'), 'w', encoding='utf-8') as outfile:
             outfile.write(script)
