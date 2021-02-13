@@ -1,0 +1,81 @@
+import os
+from urllib.parse import quote
+from googlesearch import search
+
+from bs4 import BeautifulSoup
+import requests
+
+# Based on the script by nchibana
+# https://gist.github.com/nchibana/6cb0d9baee18fc26d32d5824f9647085
+
+BASE_URL = 'http://www.imsdb.com'
+SCRIPTS_DIR = 'scripts'
+
+
+def clean_script(text):
+    text = text.replace('Back to IMSDb', '')
+    text = text.replace('''<b><!--
+</b>if (window!= top)
+top.location.href=location.href
+<b>// -->
+</b>
+''', '')
+    text = text.replace('''          Scanned by http://freemoviescripts.com
+          Formatting by http://simplyscripts.home.att.net
+''', '')
+    return text.replace(r'\r', '')
+
+
+def get_script(relative_link):
+    tail = relative_link.split('/')[-1]
+    print('fetching %s' % tail)
+    script_front_url = BASE_URL + quote(relative_link)
+    front_page_response = requests.get(script_front_url)
+    front_soup = BeautifulSoup(front_page_response.text, "html.parser")
+
+    try:
+        script_link = front_soup.find_all('p', align="center")[0].a['href']
+    except IndexError:
+        print('%s has no script :(' % tail)
+        return None, None
+    if script_link.endswith('.html'):
+        title = script_link.split('/')[-1].split(' Script')[0]
+        results = search(title.split(".html")[0].replace("-", " ").replace("%20", " ") + " imdb", num_results=10)
+        index = 0
+        imdb = results[index]
+        print(imdb)
+        while "/www.imdb.com/title/" not in imdb:
+            index += 1
+            imdb = results[index]
+        assert "/www.imdb.com/title/" in imdb
+        imdb = imdb.replace("https://www.imdb.com/title/", "").split("/")[0]
+        print(imdb)
+        script_url = BASE_URL + script_link
+        script_soup = BeautifulSoup(requests.get(script_url).text, "html.parser")
+        script_text = script_soup.find_all('td', {'class': "scrtext"})[0]
+        print(script_text)
+        script_text = clean_script(script_text)
+        return imdb, script_text
+    else:
+        print('%s is a pdf :(' % tail)
+        return None, None
+
+
+if __name__ == "__main__":
+    print("Start")
+    response = requests.get('https://imsdb.com/all-scripts.html')
+    html = response.text
+
+    soup = BeautifulSoup(html, "html.parser")
+    paragraphs = soup.find_all('p')
+    print(paragraphs)
+
+
+    for p in paragraphs:
+        relative_link = p.a['href']
+        id, script = get_script(relative_link)
+        if not script:
+            continue
+
+        with open(os.path.join(SCRIPTS_DIR, id + '.txt'), 'w', encoding='utf-8') as outfile:
+            outfile.write(script)
