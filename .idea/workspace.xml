@@ -20,10 +20,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fc6555be-547f-466d-bc17-bbdf81041b04" name="Default Changelist" comment="scrape.py work">
+      <change afterPath="$PROJECT_DIR$/metadata_extraction.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/movie_metadata.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Script2Score.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/imdb_pull.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/script_ids.txt" beforeDir="false" afterPath="$PROJECT_DIR$/script_ids.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +57,7 @@
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.scrape">
+  <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Script2Score" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -97,32 +102,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="scrape" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
-      <module name="Script2Score" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/../PycharmProjects/CourseScrape/venv/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scrape.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <list>
-      <item itemvalue="Python.scrape" />
-      <item itemvalue="Python.main" />
-    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -136,7 +115,8 @@
       <updated>1613176551726</updated>
       <workItem from="1613176555111" duration="4832000" />
       <workItem from="1613183422003" duration="6363000" />
-      <workItem from="1613244890880" duration="4060000" />
+      <workItem from="1613244890880" duration="4169000" />
+      <workItem from="1613346181705" duration="29000" />
     </task>
     <task id="LOCAL-00001" summary="scrape.py work">
       <created>1613244306264</created>
@@ -172,38 +152,38 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="332" y="190" width="1071" height="514" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1613244490873" />
-    <state width="1638" height="177" key="GridCell.Tab.0.bottom" timestamp="1613344329790">
+    <state width="1638" height="364" key="GridCell.Tab.0.bottom" timestamp="1613346180093">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1638" height="177" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1613344329790" />
-    <state width="1638" height="177" key="GridCell.Tab.0.center" timestamp="1613344329789">
+    <state width="1638" height="364" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180093" />
+    <state width="1638" height="364" key="GridCell.Tab.0.center" timestamp="1613346180092">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1638" height="177" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1613344329789" />
-    <state width="1638" height="177" key="GridCell.Tab.0.left" timestamp="1613344329788">
+    <state width="1638" height="364" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180092" />
+    <state width="1638" height="364" key="GridCell.Tab.0.left" timestamp="1613346180092">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1638" height="177" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1613344329788" />
-    <state width="1638" height="177" key="GridCell.Tab.0.right" timestamp="1613344329789">
+    <state width="1638" height="364" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180092" />
+    <state width="1638" height="364" key="GridCell.Tab.0.right" timestamp="1613346180093">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1638" height="177" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1613344329789" />
-    <state width="1638" height="364" key="GridCell.Tab.1.bottom" timestamp="1613263454106">
+    <state width="1638" height="364" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180093" />
+    <state width="1638" height="364" key="GridCell.Tab.1.bottom" timestamp="1613346180095">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1638" height="364" key="GridCell.Tab.1.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1613263454106" />
-    <state width="1638" height="364" key="GridCell.Tab.1.center" timestamp="1613263454105">
+    <state width="1638" height="364" key="GridCell.Tab.1.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180095" />
+    <state width="1638" height="364" key="GridCell.Tab.1.center" timestamp="1613346180094">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1638" height="364" key="GridCell.Tab.1.center/0.0.1680.1050@0.0.1680.1050" timestamp="1613263454105" />
-    <state width="1638" height="364" key="GridCell.Tab.1.left" timestamp="1613263454105">
+    <state width="1638" height="364" key="GridCell.Tab.1.center/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180094" />
+    <state width="1638" height="364" key="GridCell.Tab.1.left" timestamp="1613346180093">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1638" height="364" key="GridCell.Tab.1.left/0.0.1680.1050@0.0.1680.1050" timestamp="1613263454105" />
-    <state width="1638" height="364" key="GridCell.Tab.1.right" timestamp="1613263454106">
+    <state width="1638" height="364" key="GridCell.Tab.1.left/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180093" />
+    <state width="1638" height="364" key="GridCell.Tab.1.right" timestamp="1613346180094">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1638" height="364" key="GridCell.Tab.1.right/0.0.1680.1050@0.0.1680.1050" timestamp="1613263454106" />
+    <state width="1638" height="364" key="GridCell.Tab.1.right/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180094" />
     <state x="341" y="164" key="SettingsEditor" timestamp="1613244467739">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
