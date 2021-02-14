@@ -52,8 +52,12 @@ def get_script(relative_link):
         print(imdb)
         script_url = BASE_URL + script_link
         script_soup = BeautifulSoup(requests.get(script_url).text, "html.parser")
-        script_soup.table.decompose()
         script_text = script_soup.find_all('td', {'class': "scrtext"})[0]
+        if script_text.table is not None:
+            script_text.table.decompose()
+        if script_text.div is not None:
+            script_text.div.decompose()
+        print(script_text.prettify)
         return imdb, script_text.prettify()
     else:
         print('%s is a pdf :(' % tail)
@@ -67,14 +71,15 @@ if __name__ == "__main__":
 
     soup = BeautifulSoup(html, "html.parser")
     paragraphs = soup.find_all('p')
-    print(paragraphs)
-
+    if os.path.exists("script_list.txt"):
+        os.remove("script_list.txt")
+    id_list = open("script_ids.txt", "a")
 
     for p in paragraphs:
         relative_link = p.a['href']
         id, script = get_script(relative_link)
         if not script:
             continue
-
+        id_list.write(id + "\n")
         with open(os.path.join(SCRIPTS_DIR, id + '.html'), 'w', encoding='utf-8') as outfile:
             outfile.write(script)
