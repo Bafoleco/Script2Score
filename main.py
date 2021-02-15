@@ -10,6 +10,7 @@ from tensorflow.keras.layers import Activation
 from tensorflow.keras.activations import sigmoid
 from tensorflow import keras as keras
 
+
 def scaled_sigmoid(X):
    return 10 * sigmoid(X)
 
@@ -33,15 +34,15 @@ if __name__ == "__main__":
     np.random.seed(1)
     np.random.shuffle(data)
 
-    X = np.array(data)[:,:-2].T.astype(np.float)
-    Y = np.array(data)[np.newaxis,:,-1].astype(np.float)
+    X = np.array(data)[:, :-2].T.astype(np.float)
+    Y = np.array(data)[np.newaxis, :, -1].astype(np.float)
 
-    X_train = X[:,:(math.floor(.8 * X.shape[1]))]
-    y_train = Y[:,:(math.floor(.8 * X.shape[1]))]
-    X_dev = X[:,(math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
-    y_dev = Y[:,(math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
-    X_test = X[:,(math.floor(.9 * X.shape[1])):]
-    y_test = Y[:,(math.floor(.9 * X.shape[1])):]
+    X_train = X[:, :(math.floor(.8 * X.shape[1]))]
+    y_train = Y[:, :(math.floor(.8 * X.shape[1]))]
+    X_dev = X[:, (math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
+    y_dev = Y[:, (math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
+    X_test = X[:, (math.floor(.9 * X.shape[1])):]
+    y_test = Y[:, (math.floor(.9 * X.shape[1])):]
 
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
 
@@ -59,17 +60,16 @@ if __name__ == "__main__":
 
     # Compile model
     model.compile(optimizer=optimizer,
-                  loss='mean_squared_error', #fix
+                  loss='mean_squared_error',  # fix
                   metrics=['mean_squared_error'])
 
     # Train model
     model.fit(X_train.T, y_train.T,
               batch_size=500,
               epochs=1000,
-              #callbacks=[plot_losses],
+              # callbacks=[plot_losses],
               verbose=1,
               validation_data=(X_dev.T, y_dev.T))
-
 
     score = model.evaluate(X_dev.T, y_dev.T)
 
