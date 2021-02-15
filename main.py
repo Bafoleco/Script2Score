@@ -27,3 +27,36 @@ X = np.array(X).T.astype(np.float)
 Y = np.array(Y, ndmin=2).astype(np.float)
 
 #https://machinelearningmastery.com/tutorial-first-neural-network-python-keras/
+
+"""
+X_train = 
+y_train = 
+X_test = 
+y_test = 
+
+model = models.Sequential()
+model.add(Dense(32, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dense(32, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dense(10, activation='relu'))
+
+
+# Compile model
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy', #fix
+              metrics=['accuracy'])
+
+# Train model
+model.fit(X_train, y_train,
+          #batch_size=BATCH_SIZE,
+         # epochs=EPOCHS,
+          #callbacks=[plot_losses],
+         # verbose=1,
+          validation_data=(X_test, y_test))
+
+score = model.evaluate(X_test, y_test, verbose=0)
+
+# Summary of neural network
+model.summary()
+"""
