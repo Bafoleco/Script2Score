@@ -12,7 +12,7 @@ from tensorflow import keras as keras
 
 
 def scaled_sigmoid(X):
-   return 10 * sigmoid(X)
+    return 10 * sigmoid(X)
 
 
 if __name__ == "__main__":
