@@ -19,16 +19,9 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fc6555be-547f-466d-bc17-bbdf81041b04" name="Default Changelist" comment="scrape.py work">
-      <change afterPath="$PROJECT_DIR$/metadata_extraction.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/movie_metadata.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Script2Score.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+    <list default="true" id="b0f3f6af-e8c1-4017-b997-fe86d0663944" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,13 +74,13 @@
       <method v="2" />
     </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python">
-      <module name="Script2Score" />
+      <module name="script2score" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/../PycharmProjects/CourseScrape/venv/bin/python" />
+      <option name="SDK_HOME" value="C:\Users\bollr\AppData\Local\Programs\Python\Python37\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -148,25 +141,30 @@
     <option name="LAST_COMMIT_MESSAGE" value="scrape.py work" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="332" y="190" width="1071" height="514" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1613244490873">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state x="253" y="123" width="816" height="525" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1613348172586">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state x="253" y="123" width="816" height="525" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.680@0.0.1280.680" timestamp="1613348172586" />
     <state x="332" y="190" width="1071" height="514" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1613244490873" />
-    <state width="1638" height="364" key="GridCell.Tab.0.bottom" timestamp="1613346180093">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state width="423" height="500" key="GridCell.Tab.0.bottom" timestamp="1613350196725">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="423" height="500" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1613350196725" />
     <state width="1638" height="364" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180093" />
-    <state width="1638" height="364" key="GridCell.Tab.0.center" timestamp="1613346180092">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state width="423" height="500" key="GridCell.Tab.0.center" timestamp="1613350196724">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="423" height="500" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1613350196724" />
     <state width="1638" height="364" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180092" />
-    <state width="1638" height="364" key="GridCell.Tab.0.left" timestamp="1613346180092">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state width="423" height="500" key="GridCell.Tab.0.left" timestamp="1613350196724">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="423" height="500" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1613350196724" />
     <state width="1638" height="364" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180092" />
-    <state width="1638" height="364" key="GridCell.Tab.0.right" timestamp="1613346180093">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state width="423" height="500" key="GridCell.Tab.0.right" timestamp="1613350196725">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state width="423" height="500" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1613350196725" />
     <state width="1638" height="364" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180093" />
     <state width="1638" height="364" key="GridCell.Tab.1.bottom" timestamp="1613346180095">
       <screen x="0" y="0" width="1680" height="1050" />
@@ -184,9 +182,10 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state width="1638" height="364" key="GridCell.Tab.1.right/0.0.1680.1050@0.0.1680.1050" timestamp="1613346180094" />
-    <state x="341" y="164" key="SettingsEditor" timestamp="1613244467739">
-      <screen x="0" y="0" width="1680" height="1050" />
+    <state x="260" y="0" key="SettingsEditor" timestamp="1613348163163">
+      <screen x="0" y="0" width="1280" height="680" />
     </state>
+    <state x="260" y="0" key="SettingsEditor/0.0.1280.680@0.0.1280.680" timestamp="1613348163163" />
     <state x="341" y="164" key="SettingsEditor/0.0.1680.1050@0.0.1680.1050" timestamp="1613244467739" />
     <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1613244353837">
       <screen x="0" y="0" width="1680" height="1050" />
@@ -196,9 +195,5 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="628" y="446" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1680.1050@0.0.1680.1050" timestamp="1613344380726" />
-  </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Script2Score$scrape.coverage" NAME="scrape Coverage Results" MODIFIED="1613344329778" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Script2Score$main.coverage" NAME="main Coverage Results" MODIFIED="1613244508577" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
