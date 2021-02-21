@@ -3,7 +3,7 @@ import math
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import models
-from keras.layers import BatchNormalization
+from tensorflow.keras.layers import BatchNormalization
 from tensorflow.keras.layers import Dense
 from tensorflow.keras import utils
 from tensorflow.keras.layers import Activation
