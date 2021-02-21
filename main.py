@@ -43,19 +43,20 @@ if __name__ == "__main__":
     X_test = X[:,(math.floor(.9 * X.shape[1])):]
     y_test = Y[:,(math.floor(.9 * X.shape[1])):]
 
+
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
 
     model = models.Sequential()
-    model.add(Dense(256, activation='relu'))
     model.add(BatchNormalization())
+    model.add(Dense(512, activation='sigmoid'))
+    model.add(Dense(512, activation='sigmoid'))
+    model.add(Dense(512, activation='sigmoid'))
     model.add(Dense(256, activation='sigmoid'))
-    model.add(BatchNormalization())
-    model.add(Dense(256, activation='sigmoid'))
-    model.add(BatchNormalization())
-    model.add(Dense(10, activation='sigmoid'))
+    model.add(Dense(64, activation='sigmoid'))
+    model.add(Dense(16, activation='sigmoid'))
     model.add(Dense(1, activation='custom_activation'))
 
-    optimizer = keras.optimizers.Adam(lr=0.001)
+    optimizer = keras.optimizers.Adam(lr=0.0000005)
 
     # Compile model
     model.compile(optimizer=optimizer,
@@ -64,8 +65,8 @@ if __name__ == "__main__":
 
     # Train model
     model.fit(X_train.T, y_train.T,
-              batch_size=500,
-              epochs=1000,
+              batch_size=400,
+              epochs=5000,
               #callbacks=[plot_losses],
               verbose=1,
               validation_data=(X_dev.T, y_dev.T))
@@ -73,7 +74,7 @@ if __name__ == "__main__":
 
     score = model.evaluate(X_dev.T, y_dev.T)
 
-    print(score)
+    print(model.predict(X_dev.T))
 
     # Summary of neural network
     model.summary()
