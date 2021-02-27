@@ -11,6 +11,8 @@ from tensorflow.keras.activations import sigmoid
 from tensorflow import keras as keras
 from tensorflow.keras import regularizers
 
+
+#custom activation to be used
 def scaled_sigmoid(X):
    return 10 * sigmoid(X)
 
@@ -37,6 +39,8 @@ if __name__ == "__main__":
     X = np.array(data)[:,:-2].T.astype(np.float)
     Y = np.array(data)[np.newaxis,:,-1].astype(np.float)
 
+
+    #seperation of dataset into train and test sets
     X_train = X[:,:(math.floor(.8 * X.shape[1]))]
     y_train = Y[:,:(math.floor(.8 * X.shape[1]))]
     X_dev = X[:,(math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
@@ -48,6 +52,8 @@ if __name__ == "__main__":
 
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
 
+
+    #fully connected neural network
     model = models.Sequential()
     model.add(BatchNormalization())
     model.add(Dense(512, kernel_regularizer=regularizers.l2(1e-4),  activation='tanh'))
@@ -61,8 +67,10 @@ if __name__ == "__main__":
     model.add(Dense(16,  kernel_regularizer=regularizers.l2(1e-4), activation='tanh'))
     model.add(Dense(1,  kernel_regularizer=regularizers.l2(1e-4), activation='custom_activation'))
 
-    optimizer = keras.optimizers.Adam(lr=0.000006)
+    optimizer = keras.optimizers.Adam(lr=0.0006)
 
+
+    #we use early stopping for regularization
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor="val_loss",
         min_delta=0,
@@ -91,7 +99,7 @@ if __name__ == "__main__":
 
     print(model.predict(X_dev.T))
 
-    # Summary of neural network
+    # Summary of neural network, saved in 'model' folder
     model.summary()
 
     model.save('model')
