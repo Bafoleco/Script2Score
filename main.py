@@ -5,11 +5,13 @@ import tensorflow as tf
 from tensorflow.keras import models
 from tensorflow.keras.layers import BatchNormalization
 from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Embedding
 from tensorflow.keras import utils
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.activations import sigmoid
 from tensorflow import keras as keras
 from tensorflow.keras import regularizers
+
 
 
 #custom activation to be used
@@ -55,6 +57,20 @@ if __name__ == "__main__":
 
     #fully connected neural network
     model = models.Sequential()
+    """
+    model.add(tf.keras.layers.Embedding(
+            116 [or 111 for pure catergorical], 
+            64, 
+            input_length=1 [not certain abt value but we need this param set]))
+            
+        # The model will take as input an integer matrix of size (batch,  
+        # input_length), and the largest integer (i.e. word index) in the input  
+        # should be no larger than 999 (vocabulary size).  
+        # Now model.output_shape is (None, 10, 64), where `None` is the batch  
+        # dimension.  
+    input_array = <put X input here>
+    model.add(Flatten())
+    """
     model.add(BatchNormalization())
     model.add(Dense(512, kernel_regularizer=regularizers.l2(1e-4),  activation='tanh'))
     model.add(BatchNormalization())
