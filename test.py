@@ -1,7 +1,13 @@
+from utils import predict_score
+import csv
 import math
+import tensorflow.keras as keras
 import numpy as np
-from tensorflow import keras
-model = keras.models.load_model('path/to/location')
+
+# print(predict_score("83987"))
+
+data_file = "movie_metadata.csv"
+model = keras.models.load_model('model')
 
 data_file = "movie_metadata.csv"
 data = []
@@ -31,3 +37,4 @@ y_dev = Y[:, (math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
 X_test = X[:, (math.floor(.9 * X.shape[1])):]
 y_test = Y[:, (math.floor(.9 * X.shape[1])):]
 
+print(model.evaluate(X_test.T, y_test.T))
