@@ -99,12 +99,11 @@ if __name__ == "__main__":
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
 
 
-    #fully connected neural network
+    #prepare inputs
     numeric_input = keras.Input(shape=(4,), name="numeric")
     categorical_input = keras.Input(shape=(111,), name="categorical")
 
     categorical_features = Dense(100, activation='linear', use_bias=False)(categorical_input)
-    x = layers.concatenate([numeric_input, categorical_features])
 
     """
     embedding_layer = Embedding(
@@ -114,7 +113,9 @@ if __name__ == "__main__":
         trainable=False,
     )    
     """
+    x = layers.concatenate([numeric_input, categorical_features])
 
+    #fully connected netword
     x = BatchNormalization()(x)
     x = Dense(512, kernel_regularizer=regularizers.l2(1e-3),  activation='tanh')(x)
     x = BatchNormalization()(x)
@@ -124,7 +125,8 @@ if __name__ == "__main__":
     x = BatchNormalization()(x)
     x = Dense(256,  kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
     x = Dense(64,  kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
-    x = Dense(16,  kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
+    x = Dense(32,  kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
+    x = Dense(16, kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
     outputs = Dense(1,  kernel_regularizer=regularizers.l2(1e-3), activation='custom_activation')(x)
 
     optimizer = keras.optimizers.Adam(lr=0.0004)
@@ -145,10 +147,6 @@ if __name__ == "__main__":
     # Compile model
     model.compile(optimizer=optimizer,
                   loss='mean_squared_error')
-
-    print(X_train.T.shape)
-    print(X_train.T[:, 111:115].shape)
-    print(y_train.T.shape)
 
     # Train model
     model.fit(
