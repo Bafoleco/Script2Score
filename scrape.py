@@ -1,8 +1,7 @@
 import os
 from urllib.parse import quote
-from googlesearch import search
-
 from bs4 import BeautifulSoup
+from googlesearch import search
 import requests
 
 # Based on the script by nchibana
@@ -11,22 +10,7 @@ import requests
 BASE_URL = 'http://www.imsdb.com'
 SCRIPTS_DIR = 'scripts'
 
-
-def clean_script(text):
-    text = text.replace('Back to IMSDb', '')
-    text = text.replace('''<b><!--
-</b>if (window!= top)
-top.location.href=location.href
-<b>// -->
-</b>
-''', '')
-    text = text.replace('''          Scanned by http://freemoviescripts.com
-          Formatting by http://simplyscripts.home.att.net
-''', '')
-    return text.replace(r'\r', '')
-
-
-def get_script(relative_link):
+def get_script(relative_link, writer):
     tail = relative_link.split('/')[-1]
     print('fetching %s' % tail)
     script_front_url = BASE_URL + quote(relative_link)
@@ -40,7 +24,7 @@ def get_script(relative_link):
         return None, None
     if script_link.endswith('.html'):
         title = script_link.split('/')[-1].split(' Script')[0]
-        results = search(title.split(".html")[0].replace("-", " ").replace("%20", " ") + " imdb", num_results=10)
+        results = search(title.split(".html")[0].replace("-", " ").replace("%20", " ") + " imdb " + writer, num_results=10)
         index = 0
         imdb = results[index]
         print(imdb)
@@ -50,14 +34,17 @@ def get_script(relative_link):
         assert "/www.imdb.com/title/" in imdb
         imdb = imdb.replace("https://www.imdb.com/title/", "").split("/")[0]
         print(imdb)
+
         script_url = BASE_URL + script_link
         script_soup = BeautifulSoup(requests.get(script_url).text, "html.parser")
         script_text = script_soup.find_all('td', {'class': "scrtext"})[0]
+
         if script_text.table is not None:
             script_text.table.decompose()
         if script_text.div is not None:
             script_text.div.decompose()
-        print(script_text.prettify)
+
+        # print(script_text.prettify)
         return imdb, script_text.prettify()
     else:
         print('%s is a pdf :(' % tail)
@@ -76,8 +63,9 @@ if __name__ == "__main__":
     id_list = open("script_ids.txt", "a")
 
     for p in paragraphs:
+        print(p.i.getText())
         relative_link = p.a['href']
-        id, script = get_script(relative_link)
+        id, script = get_script(relative_link, p.i.getText())
         if not script:
             continue
         id_list.write(id + "\n")

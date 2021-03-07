@@ -37,4 +37,9 @@ y_dev = Y[:, (math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
 X_test = X[:, (math.floor(.9 * X.shape[1])):]
 y_test = Y[:, (math.floor(.9 * X.shape[1])):]
 
-print(model.evaluate(X_test.T, y_test.T))
+
+print(X_test.T.shape)
+print(X_train.T.shape)
+
+print(model.evaluate({"numeric": X_dev.T[:, 111:115], "categorical":  X_dev.T[:,:111]}, y_dev.T))
+print(model.evaluate({"numeric": X_test.T[:, 111:115], "categorical":  X_test.T[:,:111]}, y_test.T))
