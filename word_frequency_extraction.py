@@ -19,8 +19,6 @@ all_words = []
 files = os.listdir('scripts')
 for file in files:
     print(str(files.index(file)) + ' / ' + str(len(files)))
-    if files.index(file) == 2:
-        break  # Only here to shorten time for testing the program
     html = 'scripts\\' + file
     link = open(html)
     soup = BeautifulSoup(link.read(), features="html.parser")
@@ -44,6 +42,7 @@ for word in all_words:
     index_dict[word] = all_words.index(word) if word in all_words else -1
 
 for file in files:
+    print(str(files.index(file)) + ' / ' + str(len(files)))
     html = 'scripts\\' + file
     link = open(html)
     soup = BeautifulSoup(link.read(), features="html.parser")
