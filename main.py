@@ -56,10 +56,30 @@ def create_word_embedding():
 
 
 def get_data():
-    data_file = "movie_metadata.csv"
+    frequency_file = "frequency_csv.csv"
+    freq_vecs = {}
+    bad_ids = []
+
+    with open(frequency_file, 'r') as f:
+        csv_reader = csv.reader(f)
+        for row in csv_reader:
+            if len(row) > 260:
+                id = row[0][: row[0].find('.')]
+                if row[1] == 'UnicodeDecodeError':
+                    bad_ids.append(id)
+                    continue
+                freq_vecs[id] = [int(idx) for idx in row[1: 251]]
+
+    word_idx_file = "word_list.txt"
+
+    with open(word_idx_file, 'r') as f:
+        text = f.read()
+        all_words = text.split()
+
+    metadata_file = "movie_metadata.csv"
     data = []
 
-    with open(data_file, 'r', encoding='iso-8859-1') as f:
+    with open(metadata_file, 'r', encoding='iso-8859-1') as f:
         csv_reader = csv.reader(f)
         count = 0
         for row in csv_reader:
@@ -93,7 +113,6 @@ if __name__ == "__main__":
     # np.random.seed(2)
 
     X_train, y_train, X_dev, y_dev, X_test, y_test = get_data()
-
 
 
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
