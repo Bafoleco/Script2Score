@@ -56,7 +56,7 @@ def create_word_embedding(word_index):
             misses += 1
     print("Converted %d words (%d misses)" % (hits, misses))
 
-    return embedding_matrix,
+    return embedding_matrix, num_tokens, embedding_dim
 
 def get_data():
     frequency_file = "frequency_csv.csv"
@@ -149,26 +149,28 @@ if __name__ == "__main__":
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
 
     #prepare inputs
-    numeric_input = keras.Input(shape=(4,), name="numeric")
-    categorical_input = keras.Input(shape=(110,), name="categorical")
+    numeric_input = keras.Input(shape=(3,), name="numeric")
+    categorical_input = keras.Input(shape=(114,), name="categorical")
     categorical_features = Dense(100, activation='linear', use_bias=False)(categorical_input)
 
-    frequency_input = keras.Input(shape=(1000,), name="most common words")
+    frequency_input = keras.Input(shape=(250,), name="most common words")
 
-    # embedding_matrix = create_word_embedding(word_index)
+    embedding_matrix, num_tokens, embedding_dim = create_word_embedding(word_index)
 
-    """
+
     embedding_layer = Embedding(
         num_tokens,
         embedding_dim,
         embeddings_initializer=keras.initializers.Constant(embedding_matrix),
         trainable=False,
-    )    
-    """
+    )
 
-    x = layers.concatenate([numeric_input, categorical_features])
+    freq = embedding_layer()(frequency_input)
+    x = layers.concatenate([numeric_input, categorical_features, freq])
 
     #fully connected netword
+    x = BatchNormalization()(x)
+    x = Dense(1024, kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
     x = BatchNormalization()(x)
     x = Dense(512, kernel_regularizer=regularizers.l2(1e-3),  activation='tanh')(x)
     x = BatchNormalization()(x)
@@ -203,19 +205,20 @@ if __name__ == "__main__":
 
     # Train model
     model.fit(
-              {"numeric": X_train.T[:, 110:114], "categorical":  X_train.T[:,:110]},
+              {"numeric": X_train.T[:, 115:117], "categorical":  X_train.T[:,:114], "most common words": freq_train},
               y_train.T,
               batch_size=700,
               epochs=4000,
               callbacks=[early_stopping],
               verbose=1,
-              validation_data=({"numeric": X_dev.T[:, 110:114], "categorical":  X_dev.T[:,:110]}, y_dev.T)
+              validation_data=({"numeric": X_dev.T[:, 115:117], "categorical":  X_dev.T[:,:114],
+                                "most common words": freq_dev}, y_dev.T)
          )
 
+    score = model.evaluate({"numeric": X_dev.T[:, 115:117], "categorical":  X_dev.T[:,:114],
+                            "most common words": freq_dev}, y_dev.T)
 
-    score = model.evaluate({"numeric": X_dev.T[:, 110:114], "categorical":  X_dev.T[:,:110]}, y_dev.T)
-
-    print(model.predict({"numeric": X_dev.T[:, 110:114], "categorical":  X_dev.T[:,:110]}))
+    print(model.predict({"numeric": X_dev.T[:, 115:117], "categorical":  X_dev.T[:,:114]}))
 
     # Summary of neural network, saved in 'model' folder
     model.summary()
