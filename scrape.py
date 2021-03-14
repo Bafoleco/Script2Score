@@ -23,15 +23,18 @@ def get_script(relative_link, writer):
         print('%s has no script :(' % tail)
         return None, None
     if script_link.endswith('.html'):
-        title = script_link.split('/')[-1].split(' Script')[0]
-        results = search(title.split(".html")[0].replace("-", " ").replace("%20", " ") + " imdb " + writer, num_results=10)
+        title = script_link.split('/')[-1].split(' Script')[0].split(".html")[0].replace("-", " ").replace("%20", " ")
+        query = "\"" + title + "\"" + " site:imdb.com/title " + writer
+        print("Search: " + query)
+        results = search(query, num_results=10)
+        print(response)
         index = 0
         imdb = results[index]
-        print(imdb)
         while "/www.imdb.com/title/" not in imdb:
             index += 1
             imdb = results[index]
         assert "/www.imdb.com/title/" in imdb
+        print("good url:" + imdb)
         imdb = imdb.replace("https://www.imdb.com/title/", "").split("/")[0]
         print(imdb)
 
@@ -44,7 +47,6 @@ def get_script(relative_link, writer):
         if script_text.div is not None:
             script_text.div.decompose()
 
-        # print(script_text.prettify)
         return imdb, script_text.prettify()
     else:
         print('%s is a pdf :(' % tail)
@@ -52,7 +54,6 @@ def get_script(relative_link, writer):
 
 
 if __name__ == "__main__":
-    print("Start")
     response = requests.get('https://imsdb.com/all-scripts.html')
     html = response.text
 
@@ -63,7 +64,6 @@ if __name__ == "__main__":
     id_list = open("script_ids.txt", "a")
 
     for p in paragraphs:
-        print(p.i.getText())
         relative_link = p.a['href']
         id, script = get_script(relative_link, p.i.getText())
         if not script:
