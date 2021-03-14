@@ -28,6 +28,7 @@ def create_word_embedding():
     )
 
     embeddings_index = {}
+
     with open(path_to_glove_file) as f:
         for line in f:
             word, coefs = line.split(maxsplit=1)
@@ -54,11 +55,27 @@ def create_word_embedding():
             misses += 1
     print("Converted %d words (%d misses)" % (hits, misses))
 
+    return embedding_matrix,
+
+# def id_to_freq_list():
+#     data_file = "frequency_csv.csv"
+#     data = {}
+#
+#     with open(data_file, 'r', encoding='iso-8859-1') as f:
+#         csv_reader = csv.reader(f)
+#         count = 0
+#         for row in csv_reader:
+#             try:
+#                 data[row[0].split(".")[0]] = row[1:]
+#             except IndexError:
+#                 pass
+#     return data
 
 def get_data():
     data_file = "movie_metadata.csv"
     data = []
 
+    freq_map = id_to_freq_list()
     with open(data_file, 'r', encoding='iso-8859-1') as f:
         csv_reader = csv.reader(f)
         count = 0
@@ -74,6 +91,12 @@ def get_data():
                 pass
 
     np.random.seed(1)
+
+    index_map = np.arange(len(data))
+
+    rand_data = [[data[i]] for i in index_map]
+
+
     np.random.shuffle(data)
 
     X = np.array(data)[:,:-2].T.astype(np.float)
@@ -94,16 +117,16 @@ if __name__ == "__main__":
 
     X_train, y_train, X_dev, y_dev, X_test, y_test = get_data()
 
-
-
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
-
 
     #prepare inputs
     numeric_input = keras.Input(shape=(4,), name="numeric")
     categorical_input = keras.Input(shape=(111,), name="categorical")
-
     categorical_features = Dense(100, activation='linear', use_bias=False)(categorical_input)
+
+    frequency_input = keras.Input(shape=(1000,), name="most common words")
+
+    # embedding_matrix = create_word_embedding()
 
     """
     embedding_layer = Embedding(
@@ -113,6 +136,7 @@ if __name__ == "__main__":
         trainable=False,
     )    
     """
+
     x = layers.concatenate([numeric_input, categorical_features])
 
     #fully connected netword
@@ -129,7 +153,7 @@ if __name__ == "__main__":
     x = Dense(16, kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
     outputs = Dense(1,  kernel_regularizer=regularizers.l2(1e-3), activation='custom_activation')(x)
 
-    optimizer = keras.optimizers.Adam(lr=0.0004)
+    optimizer = keras.optimizers.Adam(lr=0.0005)
 
     model = keras.Model([numeric_input, categorical_input], outputs, name="Script2Score")
 
@@ -153,7 +177,7 @@ if __name__ == "__main__":
               {"numeric": X_train.T[:, 111:115], "categorical":  X_train.T[:,:111]},
               y_train.T,
               batch_size=700,
-              epochs=2000,
+              epochs=4000,
               callbacks=[early_stopping],
               verbose=1,
               validation_data=({"numeric": X_dev.T[:, 111:115], "categorical":  X_dev.T[:,:111]}, y_dev.T)
