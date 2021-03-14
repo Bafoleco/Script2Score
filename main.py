@@ -22,7 +22,8 @@ def scaled_sigmoid(X):
    return 10 * sigmoid(X)
 
 # based on https://keras.io/examples/nlp/pretrained_word_embeddings/
-def create_word_embedding():
+def create_word_embedding(word_index):
+
     path_to_glove_file = os.path.join(
         os.path.expanduser("~"), ".keras/datasets/glove.6B.100d.txt"
     )
@@ -37,7 +38,7 @@ def create_word_embedding():
 
     print("Found %s word vectors." % len(embeddings_index))
 
-    num_tokens = len(voc) + 2
+    num_tokens = len(word_index) + 2
     embedding_dim = 100
     hits = 0
     misses = 0
@@ -57,76 +58,104 @@ def create_word_embedding():
 
     return embedding_matrix,
 
-# def id_to_freq_list():
-#     data_file = "frequency_csv.csv"
-#     data = {}
-#
-#     with open(data_file, 'r', encoding='iso-8859-1') as f:
-#         csv_reader = csv.reader(f)
-#         count = 0
-#         for row in csv_reader:
-#             try:
-#                 data[row[0].split(".")[0]] = row[1:]
-#             except IndexError:
-#                 pass
-#     return data
-
 def get_data():
-    data_file = "movie_metadata.csv"
-    data = []
+    frequency_file = "frequency_csv.csv"
+    freq_vecs = {}
+    bad_ids = []
 
-    freq_map = id_to_freq_list()
-    with open(data_file, 'r', encoding='iso-8859-1') as f:
+    with open(frequency_file, 'r') as f:
+        csv_reader = csv.reader(f)
+        for row in csv_reader:
+            if len(row) < 1:
+                continue
+            id = row[0][: row[0].find('.')]
+            if len(row) < 1000 or row[1] == 'UnicodeDecodeError':
+                bad_ids.append(id)
+                continue
+            freq_vecs[id] = [int(idx) for idx in row[1: 251]]
+
+
+    word_idx_file = "word_list.txt"
+
+    with open(word_idx_file, 'r') as f:
+        text = f.read()
+        all_words = text.split()
+    word_index = {}
+    for i in range(len(all_words)):
+        word_index[i] = all_words[i]
+
+    metadata_file = "movie_metadata_updated.csv"
+    data = []
+    freq_data = []
+    with open(metadata_file, 'r', encoding='iso-8859-1') as f:
         csv_reader = csv.reader(f)
         count = 0
         for row in csv_reader:
             try:
+                id = "tt" + row[1].rjust(7, "0")
 
-                if "title" in row[0] or row[0] == "":
-                    print(row[113])
-                    continue
-                train_example = row[2:]
-                data.append(train_example)
+                if id not in bad_ids:
+                    if "title" in row[0] or row[0] == "":
+                        print(row[113])
+                        continue
+                    train_example = row[2:]
+                    try:
+                        freq_data.append(freq_vecs[id])
+                        data.append(train_example)
+                    except KeyError:
+                        print("key error")
+                        continue
+
             except IndexError:
                 pass
 
     np.random.seed(1)
 
     index_map = np.arange(len(data))
+    np.random.shuffle(index_map)
 
-    rand_data = [[data[i]] for i in index_map]
+    rand_data = [data[i] for i in index_map]
+    rand_freqs = np.array([freq_data[i] for i in index_map]).astype(np.float)
 
 
-    np.random.shuffle(data)
+    X = np.array(rand_data)[:,:-2].T.astype(np.float)
+    Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)
 
-    X = np.array(data)[:,:-2].T.astype(np.float)
-    Y = np.array(data)[np.newaxis,:,-1].astype(np.float)
+    print(X.shape)
+    print(Y.shape)
 
     #seperation of dataset into train and test sets
     X_train = X[:,:(math.floor(.8 * X.shape[1]))]
+    freq_train = rand_freqs[:,:(math.floor(.8 * X.shape[1]))]
+
     y_train = Y[:,:(math.floor(.8 * X.shape[1]))]
+
     X_dev = X[:,(math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
+    freq_dev = rand_freqs[:,(math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
     y_dev = Y[:,(math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
+
     X_test = X[:,(math.floor(.9 * X.shape[1])):]
+    freq_test = rand_freqs[:,(math.floor(.9 * X.shape[1])):]
     y_test = Y[:,(math.floor(.9 * X.shape[1])):]
-    return X_train, y_train, X_dev, y_dev, X_test, y_test;
+
+    return word_index, X_train, y_train, freq_train, X_dev, freq_dev, y_dev, X_test, freq_test, y_test
 
 if __name__ == "__main__":
 
     # np.random.seed(2)
 
-    X_train, y_train, X_dev, y_dev, X_test, y_test = get_data()
+    word_index, X_train, y_train, freq_train, X_dev, freq_dev, y_dev, X_test, freq_test, y_test = get_data()
 
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
 
     #prepare inputs
     numeric_input = keras.Input(shape=(4,), name="numeric")
-    categorical_input = keras.Input(shape=(111,), name="categorical")
+    categorical_input = keras.Input(shape=(110,), name="categorical")
     categorical_features = Dense(100, activation='linear', use_bias=False)(categorical_input)
 
     frequency_input = keras.Input(shape=(1000,), name="most common words")
 
-    # embedding_matrix = create_word_embedding()
+    # embedding_matrix = create_word_embedding(word_index)
 
     """
     embedding_layer = Embedding(
@@ -174,19 +203,19 @@ if __name__ == "__main__":
 
     # Train model
     model.fit(
-              {"numeric": X_train.T[:, 111:115], "categorical":  X_train.T[:,:111]},
+              {"numeric": X_train.T[:, 110:114], "categorical":  X_train.T[:,:110]},
               y_train.T,
               batch_size=700,
               epochs=4000,
               callbacks=[early_stopping],
               verbose=1,
-              validation_data=({"numeric": X_dev.T[:, 111:115], "categorical":  X_dev.T[:,:111]}, y_dev.T)
+              validation_data=({"numeric": X_dev.T[:, 110:114], "categorical":  X_dev.T[:,:110]}, y_dev.T)
          )
 
 
-    score = model.evaluate({"numeric": X_dev.T[:, 111:115], "categorical":  X_dev.T[:,:111]}, y_dev.T)
+    score = model.evaluate({"numeric": X_dev.T[:, 110:114], "categorical":  X_dev.T[:,:110]}, y_dev.T)
 
-    print(model.predict({"numeric": X_dev.T[:, 111:115], "categorical":  X_dev.T[:,:111]}))
+    print(model.predict({"numeric": X_dev.T[:, 110:114], "categorical":  X_dev.T[:,:110]}))
 
     # Summary of neural network, saved in 'model' folder
     model.summary()
