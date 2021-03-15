@@ -198,15 +198,15 @@ if __name__ == "__main__":
     model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
 
     #we use early stopping for regularization
-    early_stopping = tf.keras.callbacks.EarlyStopping(
-        monitor="val_loss",
-        min_delta=0,
-        patience=300,
-        verbose=0,
-        mode="auto",
-        baseline=None,
-        restore_best_weights=True,
-    )
+    # early_stopping = tf.keras.callbacks.EarlyStopping(
+    #     monitor="val_loss",
+    #     min_delta=0,
+    #     patience=300,
+    #     verbose=0,
+    #     mode="auto",
+    #     baseline=None,
+    #     restore_best_weights=True,
+    # )
 
     # Compile model
     model.compile(optimizer=optimizer,
