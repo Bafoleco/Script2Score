@@ -195,7 +195,7 @@ if __name__ == "__main__":
     x = Dense(16, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
 
-    optimizer = keras.optimizers.Adam(lr=0.0005)
+    optimizer = keras.optimizers.Adam(lr=0.0003)
 
     model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
 
