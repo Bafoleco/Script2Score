@@ -38,7 +38,6 @@ def create_word_embedding(word_index):
     print("Found %s word vectors." % len(embeddings_index))
 
     num_tokens = len(word_index) + 2
-    print(word_index)
     print(len(word_index))
     embedding_dim = 100
     hits = 0
@@ -46,7 +45,7 @@ def create_word_embedding(word_index):
 
     # Prepare embedding matrix
     embedding_matrix = np.zeros((num_tokens, embedding_dim))
-    for word, i in word_index.items():
+    for i, word in word_index.items():
         embedding_vector = embeddings_index.get(word)
         if embedding_vector is not None:
             # Words not found in embedding index will be all-zeros.
@@ -75,8 +74,6 @@ def get_data():
                 bad_ids.append(id)
                 continue
             freq_vecs[id] = [int(idx) for idx in row[1: 251]]
-
-
 
     word_idx_file = "word_list.txt"
 
@@ -120,7 +117,6 @@ def get_data():
 
     rand_data = [data[i] for i in index_map]
     rand_freqs = np.array([freq_data[i] for i in index_map]).astype(np.float).T
-
 
     X = np.array(rand_data)[:,:-2].T.astype(np.float)
     Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
@@ -173,21 +169,23 @@ if __name__ == "__main__":
     freq = Flatten()(freq)
     x = layers.concatenate([numeric_input, categorical_features, freq])
 
+    l2_param = .01
+
     #fully connected netword
     x = BatchNormalization()(x)
-    x = Dense(1024, kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
+    x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
-    x = Dense(512, kernel_regularizer=regularizers.l2(1e-3),  activation='tanh')(x)
+    x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
     x = BatchNormalization()(x)
-    x = Dense(512,  kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
+    x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
-    x = Dense(512,  kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
+    x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
-    x = Dense(256,  kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
-    x = Dense(64,  kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
-    x = Dense(32,  kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
-    x = Dense(16, kernel_regularizer=regularizers.l2(1e-3), activation='tanh')(x)
-    outputs = Dense(1,  kernel_regularizer=regularizers.l2(1e-3), activation='custom_activation')(x)
+    x = Dense(256,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    x = Dense(32,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    x = Dense(16, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
 
     optimizer = keras.optimizers.Adam(lr=0.0005)
 
@@ -232,4 +230,3 @@ if __name__ == "__main__":
 
     model.save('model')
     print(score)
-
