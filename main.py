@@ -151,6 +151,8 @@ if __name__ == "__main__":
 
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
 
+    l2_param = .01
+
     #prepare inputs
     numeric_input = keras.Input(shape=(3,), name="numeric")
     categorical_input = keras.Input(shape=(114,), name="categorical")
@@ -169,9 +171,10 @@ if __name__ == "__main__":
 
     freq = embedding_layer(frequency_input)
     freq = Flatten()(freq)
-    x = layers.concatenate([numeric_input, categorical_features, freq])
+    freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
+    freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
 
-    l2_param = .01
+    x = layers.concatenate([numeric_input, categorical_features, freq])
 
     #fully connected netword
     x = BatchNormalization()(x)
