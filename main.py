@@ -174,10 +174,13 @@ if __name__ == "__main__":
     freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
     freq = BatchNormalization()(freq)
     freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
+    freq = BatchNormalization()(freq)
+    freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
 
     x = layers.concatenate([numeric_input, categorical_features, freq])
 
     #fully connected netword
+    x = BatchNormalization()(x)
     x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
     x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
@@ -197,15 +200,15 @@ if __name__ == "__main__":
     model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
 
     #we use early stopping for regularization
-    early_stopping = tf.keras.callbacks.EarlyStopping(
-        monitor="val_loss",
-        min_delta=0,
-        patience=300,
-        verbose=0,
-        mode="auto",
-        baseline=None,
-        restore_best_weights=True,
-    )
+    # early_stopping = tf.keras.callbacks.EarlyStopping(
+    #     monitor="val_loss",
+    #     min_delta=0,
+    #     patience=300,
+    #     verbose=0,
+    #     mode="auto",
+    #     baseline=None,
+    #     restore_best_weights=True,
+    # )
 
     # Compile model
     model.compile(optimizer=optimizer,
