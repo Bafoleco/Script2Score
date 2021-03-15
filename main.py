@@ -214,20 +214,21 @@ if __name__ == "__main__":
 
     # Train model
     model.fit(
-              {"numeric": X_train.T[:, 114:117], "categorical":  X_train.T[:,:114], "most common words": freq_train.T},
+              {"numeric": X_train.T[:, 114:117], "categorical":  X_train.T[:,:114], "most_common_words": freq_train.T},
               y_train.T,
               batch_size=700,
               epochs=4000,
-              callbacks=[early_stopping],
+              # callbacks=[early_stopping],
               verbose=1,
               validation_data=({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
-                                "most common words": freq_dev.T}, y_dev.T)
+                                "most_common_words": freq_dev.T}, y_dev.T)
          )
 
     score = model.evaluate({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
-                            "most common words": freq_dev.T}, y_dev.T)
+                            "most_common_words": freq_dev.T}, y_dev.T)
 
-    print(model.predict({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114]}))
+    print(model.predict({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
+                            "most_common_words": freq_dev.T}))
 
     # Summary of neural network, saved in 'model' folder
     model.summary()
