@@ -46,7 +46,7 @@ def create_word_embedding(word_index):
 
     # Prepare embedding matrix
     embedding_matrix = np.zeros((num_tokens, embedding_dim))
-    for word, i in word_index.items():
+    for i, word in word_index.items():
         embedding_vector = embeddings_index.get(word)
         if embedding_vector is not None:
             # Words not found in embedding index will be all-zeros.
@@ -146,6 +146,8 @@ def get_data():
 
 
 if __name__ == "__main__":
+    
+    print("Started.")
 
     # np.random.seed(2)
 
@@ -158,7 +160,7 @@ if __name__ == "__main__":
     categorical_input = keras.Input(shape=(114,), name="categorical")
     categorical_features = Dense(32, activation='linear', use_bias=False)(categorical_input)
 
-    frequency_input = keras.Input(shape=(250,), name="most common words")
+    frequency_input = keras.Input(shape=(250,), name="most_common_words")
 
     embedding_matrix, num_tokens, embedding_dim = create_word_embedding(word_index)
 
@@ -210,14 +212,14 @@ if __name__ == "__main__":
 
     # Train model
     model.fit(
-              {"numeric": X_train.T[:, 114:117], "categorical":  X_train.T[:,:114], "most common words": freq_train.T},
+              {"numeric": X_train.T[:, 114:117], "categorical":  X_train.T[:,:114], "most_common_words": freq_train.T},
               y_train.T,
               batch_size=700,
               epochs=4000,
               callbacks=[early_stopping],
               verbose=1,
               validation_data=({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
-                                "most common words": freq_dev.T}, y_dev.T)
+                                "most_common_words": freq_dev.T}, y_dev.T)
          )
 
     score = model.evaluate({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
