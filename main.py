@@ -181,10 +181,10 @@ if __name__ == "__main__":
 
     #fully connected netword
     x = BatchNormalization()(x)
-    # x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    # x = BatchNormalization()(x)
-    # x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
-    # x = BatchNormalization()(x)
+    x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    x = BatchNormalization()(x)
+    x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
+    x = BatchNormalization()(x)
     x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
     x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
@@ -200,15 +200,15 @@ if __name__ == "__main__":
     model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
 
     #we use early stopping for regularization
-    # early_stopping = tf.keras.callbacks.EarlyStopping(
-    #     monitor="val_loss",
-    #     min_delta=0,
-    #     patience=300,
-    #     verbose=0,
-    #     mode="auto",
-    #     baseline=None,
-    #     restore_best_weights=True,
-    # )
+    early_stopping = tf.keras.callbacks.EarlyStopping(
+        monitor="val_loss",
+        min_delta=0,
+        patience=300,
+        verbose=0,
+        mode="auto",
+        baseline=None,
+        restore_best_weights=True,
+    )
 
     # Compile model
     model.compile(optimizer=optimizer,
@@ -220,7 +220,7 @@ if __name__ == "__main__":
               y_train.T,
               batch_size=700,
               epochs=4000,
-              # callbacks=[early_stopping],
+              callbacks=[early_stopping],
               verbose=1,
               validation_data=({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
                                 "most_common_words": freq_dev.T}, y_dev.T)
