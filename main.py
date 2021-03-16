@@ -119,7 +119,7 @@ def get_data():
     rand_freqs = np.array([freq_data[i] for i in index_map]).astype(np.float).T
 
     X = np.array(rand_data)[:,:-2].T.astype(np.float)
-    Y = np.array(rand_data)[np.newaxis,:,-2].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
+    Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
 
     print(X.shape)
     print(Y.shape)
@@ -179,7 +179,9 @@ if __name__ == "__main__":
     freq = BatchNormalization()(freq)
     freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
 
-    x = layers.concatenate([numeric_input, categorical_features, freq])
+    # x = layers.concatenate([categorical_features, numeric_input, freq])
+
+    x = freq
 
     #fully connected netword
     x = BatchNormalization()(x)
@@ -195,11 +197,11 @@ if __name__ == "__main__":
     x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = Dense(32,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = Dense(16, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='relu')(x)
+    outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
 
     optimizer = keras.optimizers.Adam(lr=0.0003)
 
-    model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
+    model = keras.Model([frequency_input], outputs, name="Script2Score")
 
     #we use early stopping for regularization
     early_stopping = tf.keras.callbacks.EarlyStopping(
