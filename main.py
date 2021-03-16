@@ -119,7 +119,7 @@ def get_data():
     rand_freqs = np.array([freq_data[i] for i in index_map]).astype(np.float).T
 
     X = np.array(rand_data)[:,:-2].T.astype(np.float)
-    Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
+    Y = np.array(rand_data)[np.newaxis,:,-2].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
 
     print(X.shape)
     print(Y.shape)
