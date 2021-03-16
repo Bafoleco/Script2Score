@@ -119,7 +119,7 @@ def get_data():
     rand_freqs = np.array([freq_data[i] for i in index_map]).astype(np.float).T
 
     X = np.array(rand_data)[:,:-2].T.astype(np.float)
-    Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
+    Y = np.array(rand_data)[np.newaxis,:,-2].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
 
     print(X.shape)
     print(Y.shape)
@@ -176,6 +176,8 @@ if __name__ == "__main__":
     freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
     freq = BatchNormalization()(freq)
     freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
+    freq = BatchNormalization()(freq)
+    freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
 
     x = layers.concatenate([numeric_input, categorical_features, freq])
 
@@ -200,15 +202,15 @@ if __name__ == "__main__":
     model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
 
     #we use early stopping for regularization
-    # early_stopping = tf.keras.callbacks.EarlyStopping(
-    #     monitor="val_loss",
-    #     min_delta=0,
-    #     patience=300,
-    #     verbose=0,
-    #     mode="auto",
-    #     baseline=None,
-    #     restore_best_weights=True,
-    # )
+    early_stopping = tf.keras.callbacks.EarlyStopping(
+        monitor="val_loss",
+        min_delta=0,
+        patience=300,
+        verbose=0,
+        mode="auto",
+        baseline=None,
+        restore_best_weights=True,
+    )
 
     # Compile model
     model.compile(optimizer=optimizer,
@@ -220,7 +222,7 @@ if __name__ == "__main__":
               y_train.T,
               batch_size=700,
               epochs=4000,
-              # callbacks=[early_stopping],
+              callbacks=[early_stopping],
               verbose=1,
               validation_data=({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
                                 "most_common_words": freq_dev.T}, y_dev.T)
