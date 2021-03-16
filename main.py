@@ -193,7 +193,7 @@ if __name__ == "__main__":
     x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = Dense(32,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = Dense(16, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
+    outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='relu')(x)
 
     optimizer = keras.optimizers.Adam(lr=0.0003)
 
