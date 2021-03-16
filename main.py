@@ -7,6 +7,8 @@ from tensorflow.keras.layers import BatchNormalization
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Embedding
 from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Dropout
+
 from tensorflow.keras import utils
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.activations import sigmoid
@@ -147,13 +149,11 @@ if __name__ == "__main__":
     
     print("Started.")
 
-    # np.random.seed(2)
-
     word_index, X_train, y_train, freq_train, X_dev, freq_dev, y_dev, X_test, freq_test, y_test = get_data()
 
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
 
-    l2_param = .02
+    l2_param = 0.003
 
     #prepare inputs
     numeric_input = keras.Input(shape=(3,), name="numeric")
@@ -176,33 +176,30 @@ if __name__ == "__main__":
 
     #preprocess word embeddings
     freq = BatchNormalization()(freq)
-    freq = Dense(8192, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
-    freq = BatchNormalization()(freq)
+    freq = Dense(2048, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
+    freq = Dropout(.1)(freq)
     freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
-    freq = BatchNormalization()(freq)
+    freq = Dropout(.1)(freq)
     freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
-    # x = layers.concatenate([categorical_features, numeric_input, freq])
-
-
-    x = freq
+    x = layers.concatenate([categorical_features, numeric_input, freq])
 
     #fully connected netword
     #x = BatchNormalization()(x)
     #x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
     x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
-    x = BatchNormalization()(x)
+    x = Dropout(.1)(x)
     x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    x = BatchNormalization()(x)
+    x = Dropout(.1)(x)
     x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    x = BatchNormalization()(x)
+    x = Dropout(.1)(x)
     x = Dense(256,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
 
     optimizer = keras.optimizers.Adam(lr=0.0003)
 
-    model = keras.Model([frequency_input], outputs, name="Script2Score")
+    model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
 
     #we use early stopping for regularization
     early_stopping = tf.keras.callbacks.EarlyStopping(
@@ -217,14 +214,15 @@ if __name__ == "__main__":
 
     # Compile model
     model.compile(optimizer=optimizer,
-                  loss='mean_squared_error')
+                  loss='mean_squared_error',
+                  metrics=['mean_squared_error'])
 
     # Train model
     model.fit(
               {"numeric": X_train.T[:, 114:117], "categorical":  X_train.T[:,:114], "most_common_words": freq_train.T},
               y_train.T,
-              batch_size=1500,
-              epochs=4,
+              batch_size=300,
+              epochs=2000,
               callbacks=[early_stopping],
               verbose=1,
               validation_data=({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
