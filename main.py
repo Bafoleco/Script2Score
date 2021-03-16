@@ -20,7 +20,7 @@ import os
 
 #custom activation to be used
 def scaled_sigmoid(X):
-   return 10 * sigmoid(X)
+   return 23 * sigmoid(X)
 
 # based on https://keras.io/examples/nlp/pretrained_word_embeddings/
 def create_word_embedding(word_index):
@@ -97,7 +97,6 @@ def get_data():
 
                 if id not in bad_ids:
                     if "title" in row[0] or row[0] == "":
-                        print(row[113])
                         continue
                     train_example = row[2:]
                     try:
@@ -119,7 +118,7 @@ def get_data():
     rand_freqs = np.array([freq_data[i] for i in index_map]).astype(np.float).T
 
     X = np.array(rand_data)[:,:-2].T.astype(np.float)
-    Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
+    Y = np.array(rand_data)[np.newaxis,:,-2].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
 
     print(X.shape)
     print(Y.shape)
@@ -221,7 +220,7 @@ if __name__ == "__main__":
     model.fit(
               {"numeric": X_train.T[:, 114:117], "categorical":  X_train.T[:,:114], "most_common_words": freq_train.T},
               y_train.T,
-              batch_size=700,
+              batch_size=500,
               epochs=4000,
               callbacks=[early_stopping],
               verbose=1,
