@@ -138,6 +138,8 @@ def get_data():
     freq_test = rand_freqs[:,(math.floor(.9 * X.shape[1])):]
     y_test = Y[:,(math.floor(.9 * X.shape[1])):]
 
+    print(Y)
+
     return word_index, X_train, y_train, freq_train, X_dev, freq_dev, y_dev, X_test, freq_test, y_test
 
 
@@ -171,21 +173,22 @@ if __name__ == "__main__":
 
     freq = embedding_layer(frequency_input)
     freq = Flatten()(freq)
-    freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
-    freq = BatchNormalization()(freq)
-    freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
-    freq = BatchNormalization()(freq)
-    freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
-    freq = BatchNormalization()(freq)
-    freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
 
+    #preprocess word embeddings
+    freq = BatchNormalization()(freq)
+    freq = Dense(8192, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
+    freq = BatchNormalization()(freq)
+    freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
+    freq = BatchNormalization()(freq)
+    freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
     # x = layers.concatenate([categorical_features, numeric_input, freq])
+
 
     x = freq
 
     #fully connected netword
-    x = BatchNormalization()(x)
-    x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    #x = BatchNormalization()(x)
+    #x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
     x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
     x = BatchNormalization()(x)
@@ -195,8 +198,6 @@ if __name__ == "__main__":
     x = BatchNormalization()(x)
     x = Dense(256,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    x = Dense(32,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    x = Dense(16, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
 
     optimizer = keras.optimizers.Adam(lr=0.0003)
