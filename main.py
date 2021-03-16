@@ -222,8 +222,8 @@ if __name__ == "__main__":
     model.fit(
               {"numeric": X_train.T[:, 114:117], "categorical":  X_train.T[:,:114], "most_common_words": freq_train.T},
               y_train.T,
-              batch_size=700,
-              epochs=4000,
+              batch_size=1500,
+              epochs=4,
               callbacks=[early_stopping],
               verbose=1,
               validation_data=({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
