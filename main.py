@@ -156,7 +156,7 @@ if __name__ == "__main__":
     categorical_input = keras.Input(shape=(114,), name="categorical")
     categorical_features = Dense(32, activation='linear', use_bias=False)(categorical_input)
 
-    frequency_input = keras.Input(shape=(250,), name="most common words")
+    frequency_input = keras.Input(shape=(250,), name="most_common_words")
 
     embedding_matrix, num_tokens, embedding_dim = create_word_embedding(word_index)
 
