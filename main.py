@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
 
-    l2_param = .01
+    l2_param = .02
 
     #prepare inputs
     numeric_input = keras.Input(shape=(3,), name="numeric")
