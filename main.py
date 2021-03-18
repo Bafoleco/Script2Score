@@ -184,9 +184,7 @@ def setup_frequency(inputs, features, word_index):
     #preprocess word embeddings
     freq_features = BatchNormalization()(freq_features)
     freq_features = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq_features)
-    freq_features = Dropout(dropout)(freq_features)
     freq_features = Dense(256, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq_features)
-    freq_features = Dropout(dropout)(freq_features)
 
     inputs.append(frequency_input)
     features.append(freq_features)
@@ -212,7 +210,6 @@ if __name__ == "__main__":
         utils.get_custom_objects().update({'custom_activation': Activation(score_out)})
 
     l2_param = 0.005
-    dropout = .0
 
     # Prepare inputs and features 
     inputs = []
@@ -227,18 +224,18 @@ if __name__ == "__main__":
 
     #concatenate all features
     print(features)
-    x = layers.concatenate(features)
+    if len(features) > 1:
+        x = layers.concatenate(features)
+    else: 
+        x = features[0]
 
     #fully connected network 
     #x = BatchNormalization()(x)
     #x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
     # x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
-    # x = Dropout(dropout)(x)
     x = Dense(256,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    # x = Dropout(dropout)(x)
     # x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    x = Dropout(dropout)(x)
     x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     # x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
