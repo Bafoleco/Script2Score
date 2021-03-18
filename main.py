@@ -1,14 +1,9 @@
-import csv
-import math
-import numpy as np
-import tensorflow as tf
 from tensorflow.keras import models
 from tensorflow.keras.layers import BatchNormalization
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Embedding
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dropout
-
 from tensorflow.keras import utils
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.activations import sigmoid
@@ -16,25 +11,28 @@ from tensorflow import keras as keras
 from tensorflow.keras import regularizers
 from tensorflow.keras import layers
 from tensorflow.keras.layers.experimental.preprocessing import TextVectorization
-import argparse
 
+import csv
+import math
+import numpy as np
+import tensorflow as tf
+import argparse
 import os
 
 
-#custom activation to be used for scores and revenues
+# Custom activations for scores and revenues
 def score_out(X):
    return 10 * sigmoid(X)
 
 def revenue_out(X):
    return 23 * sigmoid(X)
 
-# based on https://keras.io/examples/nlp/pretrained_word_embeddings/
+# Based on https://keras.io/examples/nlp/pretrained_word_embeddings/
 def create_word_embedding(word_index):
 
+    # Load word embeddings 
     path_to_glove_file = "glove.6B.100d.txt"
-
     embeddings_index = {}
-
     with open(path_to_glove_file, 'r', encoding='utf-8') as f:
         for line in f:
             word, coefs = line.split(maxsplit=1)
@@ -43,13 +41,12 @@ def create_word_embedding(word_index):
 
     print("Found %s word vectors." % len(embeddings_index))
 
+    # Prepare embedding matrix for our corpus
     num_tokens = len(word_index) + 2
     print(len(word_index))
     embedding_dim = 100
     hits = 0
     misses = 0
-
-    # Prepare embedding matrix
     embedding_matrix = np.zeros((num_tokens, embedding_dim))
     for i, word in word_index.items():
         embedding_vector = embeddings_index.get(word)
@@ -66,10 +63,11 @@ def create_word_embedding(word_index):
 
 
 def get_data(using_revenues):
-    frequency_file = "frequency_csv.csv"
+
+    # Load frequency data
     freq_vecs = {}
     bad_ids = []
-
+    frequency_file = "frequency_csv.csv"
     with open(frequency_file, 'r') as f:
         csv_reader = csv.reader(f)
         for row in csv_reader:
@@ -81,8 +79,8 @@ def get_data(using_revenues):
                 continue
             freq_vecs[id] = [int(idx) for idx in row[1: 251]]
 
+    # Create a map from word ids to words 
     word_idx_file = "word_list.txt"
-
     with open(word_idx_file, 'r') as f:
         text = f.read()
         all_words = text.split(',')
@@ -91,6 +89,7 @@ def get_data(using_revenues):
     for i in range(len(all_words)):
         word_index[i] = all_words[i]
 
+    # Load movie metadata
     metadata_file = "movie_metadata_updated.csv"
     data = []
     freq_data = []
@@ -111,32 +110,32 @@ def get_data(using_revenues):
                     except KeyError:
                         print("key error")
                         continue
-
             except IndexError:
                 pass
 
-    np.random.seed(1)
 
+    #shuffle freq_data and data arrays in the same way
+    np.random.seed(1)
     index_map = np.arange(len(data))
     np.random.shuffle(index_map)
 
     rand_data = [data[i] for i in index_map]
     rand_freqs = np.array([freq_data[i] for i in index_map]).astype(np.float).T
 
+    # Select the input array
     X = np.array(rand_data)[:,:-2].T.astype(np.float)
 
-
+    # Select optimization target based on command line args
     Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)  
     if using_revenues:
-        Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)
+        Y = np.array(rand_data)[np.newaxis,:,-2].astype(np.float)
 
     print(X.shape)
     print(Y.shape)
 
-    #seperation of dataset into train, dev, and test sets
+    # Seperation of dataset into train, dev, and test sets
     X_train = X[:,:(math.floor(.8 * X.shape[1]))]
     freq_train = rand_freqs[:,:(math.floor(.8 * X.shape[1]))]
-
     y_train = Y[:,:(math.floor(.8 * X.shape[1]))]
 
     X_dev = X[:,(math.floor(.8 * X.shape[1])):(math.floor(.9 * X.shape[1]))]
@@ -152,6 +151,9 @@ def get_data(using_revenues):
     return word_index, X_train, y_train, freq_train, X_dev, freq_dev, y_dev, X_test, freq_test, y_test
 
 
+def load_data(X, freq_train):
+    return {"numeric": X.T[:, 114:117], "categorical":  X.T[:,:114], "most_common_words": freq_train.T}
+
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
@@ -160,23 +162,24 @@ if __name__ == "__main__":
 
     word_index, X_train, y_train, freq_train, X_dev, freq_dev, y_dev, X_test, freq_test, y_test = get_data(args.rev)
 
-
+    #Set output activation based on whether we are predicting log revenues or scores
     if args.rev:
         utils.get_custom_objects().update({'custom_activation': Activation(revenue_out)})
     else: 
         utils.get_custom_objects().update({'custom_activation': Activation(score_out)})
 
-
     l2_param = 0.003
-    dropout = .06
+    dropout = .0
 
     #prepare inputs
     numeric_input = keras.Input(shape=(3,), name="numeric")
     categorical_input = keras.Input(shape=(114,), name="categorical")
-    categorical_features = Dense(32, activation='linear', use_bias=False)(categorical_input)
-
     frequency_input = keras.Input(shape=(250,), name="most_common_words")
 
+    #create categorical features
+    categorical_features = Dense(64, activation='linear', use_bias=False)(categorical_input)
+
+    #create frequency features
     embedding_matrix, num_tokens, embedding_dim = create_word_embedding(word_index)
 
     embedding_layer = Embedding(
@@ -193,32 +196,34 @@ if __name__ == "__main__":
     freq = BatchNormalization()(freq)
     freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
     freq = Dropout(dropout)(freq)
-    freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
+    freq = Dense(256, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
     freq = Dropout(dropout)(freq)
 
     # freq = Dropout(dropout)(freq)
     # freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
+
+    #concatenate all features
     x = layers.concatenate([categorical_features, numeric_input, freq])
 
     #fully connected netword
     #x = BatchNormalization()(x)
     #x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
-    x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
+    # x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
     # x = Dropout(dropout)(x)
-    # x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    x = Dense(256,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     # x = Dropout(dropout)(x)
     # x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = Dropout(dropout)(x)
-    x = Dense(256,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    x = Dense(128,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     # x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
 
+    # Create model
     optimizer = keras.optimizers.Adam(lr=0.0002)
-
     model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
 
-    #we use early stopping for regularization
+    # We use early stopping to prevent overfitting
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor="val_loss",
         min_delta=0,
@@ -236,21 +241,18 @@ if __name__ == "__main__":
 
     # Train model
     model.fit(
-              {"numeric": X_train.T[:, 114:117], "categorical":  X_train.T[:,:114], "most_common_words": freq_train.T},
+              load_data(X_train, freq_train),
               y_train.T,
               batch_size=500,
               epochs=4000,
              # callbacks=[early_stopping],
               verbose=1,
-              validation_data=({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
-                                "most_common_words": freq_dev.T}, y_dev.T)
+              validation_data=(load_data(X_dev, freq_dev), y_dev.T)
          )
 
-    score = model.evaluate({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
-                            "most_common_words": freq_dev.T}, y_dev.T)
+    score = model.evaluate(load_data(X_dev, freq_dev), y_dev.T)
 
-    print(model.predict({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
-                            "most_common_words": freq_dev.T}))
+    print(model.predict(load_data(X_dev, freq_dev)))
 
     # Summary of neural network, saved in 'model' folder
     model.summary()
