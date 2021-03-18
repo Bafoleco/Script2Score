@@ -16,13 +16,17 @@ from tensorflow import keras as keras
 from tensorflow.keras import regularizers
 from tensorflow.keras import layers
 from tensorflow.keras.layers.experimental.preprocessing import TextVectorization
+import argparse
 
 import os
 
 
-#custom activation to be used
-def scaled_sigmoid(X):
+#custom activation to be used for scores and revenues
+def score_out(X):
    return 10 * sigmoid(X)
+
+def revenue_out(X):
+   return 23 * sigmoid(X)
 
 # based on https://keras.io/examples/nlp/pretrained_word_embeddings/
 def create_word_embedding(word_index):
@@ -61,7 +65,7 @@ def create_word_embedding(word_index):
     return embedding_matrix, num_tokens, embedding_dim
 
 
-def get_data():
+def get_data(using_revenues):
     frequency_file = "frequency_csv.csv"
     freq_vecs = {}
     bad_ids = []
@@ -99,7 +103,6 @@ def get_data():
 
                 if id not in bad_ids:
                     if "title" in row[0] or row[0] == "":
-                        print(row[113])
                         continue
                     train_example = row[2:]
                     try:
@@ -121,12 +124,16 @@ def get_data():
     rand_freqs = np.array([freq_data[i] for i in index_map]).astype(np.float).T
 
     X = np.array(rand_data)[:,:-2].T.astype(np.float)
-    Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)  # Change to -2 for revenues instead of rating (-1)
+
+
+    Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)  
+    if using_revenues:
+        Y = np.array(rand_data)[np.newaxis,:,-1].astype(np.float)
 
     print(X.shape)
     print(Y.shape)
 
-    #seperation of dataset into train and test sets
+    #seperation of dataset into train, dev, and test sets
     X_train = X[:,:(math.floor(.8 * X.shape[1]))]
     freq_train = rand_freqs[:,:(math.floor(.8 * X.shape[1]))]
 
@@ -147,13 +154,21 @@ def get_data():
 
 if __name__ == "__main__":
     
-    print("Started.")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--rev', action='store_true')
+    args = parser.parse_args()
 
-    word_index, X_train, y_train, freq_train, X_dev, freq_dev, y_dev, X_test, freq_test, y_test = get_data()
+    word_index, X_train, y_train, freq_train, X_dev, freq_dev, y_dev, X_test, freq_test, y_test = get_data(args.rev)
 
-    utils.get_custom_objects().update({'custom_activation': Activation(scaled_sigmoid)})
+
+    if args.rev:
+        utils.get_custom_objects().update({'custom_activation': Activation(revenue_out)})
+    else: 
+        utils.get_custom_objects().update({'custom_activation': Activation(score_out)})
+
 
     l2_param = 0.003
+    dropout = .06
 
     #prepare inputs
     numeric_input = keras.Input(shape=(3,), name="numeric")
@@ -176,11 +191,13 @@ if __name__ == "__main__":
 
     #preprocess word embeddings
     freq = BatchNormalization()(freq)
-    freq = Dense(2048, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
-    freq = Dropout(.1)(freq)
-    freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
-    freq = Dropout(.1)(freq)
+    freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
+    freq = Dropout(dropout)(freq)
     freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
+    freq = Dropout(dropout)(freq)
+
+    # freq = Dropout(dropout)(freq)
+    # freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
     x = layers.concatenate([categorical_features, numeric_input, freq])
 
     #fully connected netword
@@ -188,16 +205,16 @@ if __name__ == "__main__":
     #x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
     x = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(x)
-    x = Dropout(.1)(x)
-    x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    x = Dropout(.1)(x)
-    x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    x = Dropout(.1)(x)
+    # x = Dropout(dropout)(x)
+    # x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    # x = Dropout(dropout)(x)
+    # x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    x = Dropout(dropout)(x)
     x = Dense(256,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
-    x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    # x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
 
-    optimizer = keras.optimizers.Adam(lr=0.0003)
+    optimizer = keras.optimizers.Adam(lr=0.0002)
 
     model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
 
@@ -221,9 +238,9 @@ if __name__ == "__main__":
     model.fit(
               {"numeric": X_train.T[:, 114:117], "categorical":  X_train.T[:,:114], "most_common_words": freq_train.T},
               y_train.T,
-              batch_size=300,
-              epochs=2000,
-              callbacks=[early_stopping],
+              batch_size=500,
+              epochs=4000,
+             # callbacks=[early_stopping],
               verbose=1,
               validation_data=({"numeric": X_dev.T[:, 114:117], "categorical":  X_dev.T[:,:114],
                                 "most_common_words": freq_dev.T}, y_dev.T)
