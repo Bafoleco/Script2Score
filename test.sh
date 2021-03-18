@@ -1,0 +1,11 @@
+#!/bin/sh
+
+mkdir test_out
+python3 main.py --rev --freq --cat --num > test_out/all_rev
+python3 main.py --freq --cat --num > test_out/all_score
+
+python3 main.py --rev --cat --num > test_out/cat_rev
+python3 main.py --cat --num > test_out/cat_score
+
+python3 main.py --rev --freq --num > test_out/freq_rev
+python3 main.py --freq --num > test_out/freq_score

@@ -154,10 +154,53 @@ def get_data(using_revenues):
 def load_data(X, freq_train):
     return {"numeric": X.T[:, 114:117], "categorical":  X.T[:,:114], "most_common_words": freq_train.T}
 
+def setup_numeric(inputs, features):
+    numeric_input = keras.Input(shape=(3,), name="numeric")
+    # Add inputs and features 
+    inputs.append(numeric_input)
+    features.append(numeric_input)
+
+def setup_categorical(inputs, features):
+    categorical_input = keras.Input(shape=(114,), name="categorical")
+    #create categorical features
+    categorical_features = Dense(128, activation='linear', use_bias=False)(categorical_input)
+    # Add inputs and features 
+    inputs.append(categorical_input)
+    features.append(categorical_features)
+
+def setup_frequency(inputs, features, word_index):
+    frequency_input = keras.Input(shape=(250,), name="most_common_words")
+    embedding_matrix, num_tokens, embedding_dim = create_word_embedding(word_index)
+    embedding_layer = Embedding(
+        num_tokens,
+        embedding_dim,
+        embeddings_initializer=keras.initializers.Constant(embedding_matrix),
+        trainable=False,
+    )
+
+    freq_features = embedding_layer(frequency_input)
+    freq_features = Flatten()(freq_features)
+
+    #preprocess word embeddings
+    freq_features = BatchNormalization()(freq_features)
+    freq_features = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq_features)
+    freq_features = Dropout(dropout)(freq_features)
+    freq_features = Dense(256, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq_features)
+    freq_features = Dropout(dropout)(freq_features)
+
+    inputs.append(frequency_input)
+    features.append(freq_features)
+
+
+
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--rev', action='store_true')
+    parser.add_argument('--num', action='store_true')
+    parser.add_argument('--cat', action='store_true')
+    parser.add_argument('--freq', action='store_true')
+
     args = parser.parse_args()
 
     word_index, X_train, y_train, freq_train, X_dev, freq_dev, y_dev, X_test, freq_test, y_test = get_data(args.rev)
@@ -168,44 +211,25 @@ if __name__ == "__main__":
     else: 
         utils.get_custom_objects().update({'custom_activation': Activation(score_out)})
 
-    l2_param = 0.003
+    l2_param = 0.005
     dropout = .0
 
-    #prepare inputs
-    numeric_input = keras.Input(shape=(3,), name="numeric")
-    categorical_input = keras.Input(shape=(114,), name="categorical")
-    frequency_input = keras.Input(shape=(250,), name="most_common_words")
-
-    #create categorical features
-    categorical_features = Dense(64, activation='linear', use_bias=False)(categorical_input)
-
-    #create frequency features
-    embedding_matrix, num_tokens, embedding_dim = create_word_embedding(word_index)
-
-    embedding_layer = Embedding(
-        num_tokens,
-        embedding_dim,
-        embeddings_initializer=keras.initializers.Constant(embedding_matrix),
-        trainable=False,
-    )
-
-    freq = embedding_layer(frequency_input)
-    freq = Flatten()(freq)
-
-    #preprocess word embeddings
-    freq = BatchNormalization()(freq)
-    freq = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(freq)
-    freq = Dropout(dropout)(freq)
-    freq = Dense(256, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
-    freq = Dropout(dropout)(freq)
-
-    # freq = Dropout(dropout)(freq)
-    # freq = Dense(512, kernel_regularizer=regularizers.l2(l2_param),  activation='tanh')(freq)
+    # Prepare inputs and features 
+    inputs = []
+    features = []
+    
+    if args.num:
+        setup_numeric(inputs, features)
+    if args.cat:
+        setup_categorical(inputs, features)
+    if args.freq:
+        setup_frequency(inputs, features, word_index)
 
     #concatenate all features
-    x = layers.concatenate([categorical_features, numeric_input, freq])
+    print(features)
+    x = layers.concatenate(features)
 
-    #fully connected netword
+    #fully connected network 
     #x = BatchNormalization()(x)
     #x = Dense(1024, kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = BatchNormalization()(x)
@@ -215,19 +239,19 @@ if __name__ == "__main__":
     # x = Dropout(dropout)(x)
     # x = Dense(512,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     x = Dropout(dropout)(x)
-    x = Dense(128,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
+    x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     # x = Dense(64,  kernel_regularizer=regularizers.l2(l2_param), activation='tanh')(x)
     outputs = Dense(1,  kernel_regularizer=regularizers.l2(l2_param), activation='custom_activation')(x)
 
     # Create model
     optimizer = keras.optimizers.Adam(lr=0.0002)
-    model = keras.Model([numeric_input, categorical_input, frequency_input], outputs, name="Script2Score")
+    model = keras.Model(inputs, outputs, name="Script2Score")
 
     # We use early stopping to prevent overfitting
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor="val_loss",
         min_delta=0,
-        patience=300,
+        patience=3000,
         verbose=0,
         mode="auto",
         baseline=None,
@@ -245,19 +269,23 @@ if __name__ == "__main__":
               y_train.T,
               batch_size=500,
               epochs=4000,
-             # callbacks=[early_stopping],
+              callbacks=[early_stopping],
               verbose=1,
               validation_data=(load_data(X_dev, freq_dev), y_dev.T)
          )
-
-    score = model.evaluate(load_data(X_dev, freq_dev), y_dev.T)
 
     print(model.predict(load_data(X_dev, freq_dev)))
 
     # Summary of neural network, saved in 'model' folder
     model.summary()
 
-    keras.utils.plot_model(model, "multi_input_and_output_model.png", show_shapes=True)
-
-    model.save('model')
+    score = model.evaluate(load_data(X_dev, freq_dev), y_dev.T)
+    print("Dev set results:")
     print(score)
+
+    score = model.evaluate(load_data(X_test, freq_test), y_test.T)
+    print("Test set results:")
+    print(score)
+
+    # keras.utils.plot_model(model, "multi_input_and_output_model.png", show_shapes=True)
+    # model.save('model')
