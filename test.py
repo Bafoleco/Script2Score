@@ -43,3 +43,5 @@ print(X_train.T.shape)
 
 print(model.evaluate({"numeric": X_dev.T[:, 111:115], "categorical":  X_dev.T[:,:111]}, y_dev.T))
 print(model.evaluate({"numeric": X_test.T[:, 111:115], "categorical":  X_test.T[:,:111]}, y_test.T))
+
+print("predicted score: " + predict_score())

@@ -25,18 +25,17 @@ def get_script(relative_link, writer):
     if script_link.endswith('.html'):
         title = script_link.split('/')[-1].split(' Script')[0].split(".html")[0].replace("-", " ").replace("%20", " ")
         query = "\"" + title + "\"" + " site:imdb.com/title " + writer
-        print("Search: " + query)
+
         results = search(query, num_results=10)
-        print(response)
+
         index = 0
         imdb = results[index]
         while "/www.imdb.com/title/" not in imdb:
             index += 1
             imdb = results[index]
         assert "/www.imdb.com/title/" in imdb
-        print("good url:" + imdb)
+
         imdb = imdb.replace("https://www.imdb.com/title/", "").split("/")[0]
-        print(imdb)
 
         script_url = BASE_URL + script_link
         script_soup = BeautifulSoup(requests.get(script_url).text, "html.parser")

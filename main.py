@@ -93,6 +93,7 @@ def get_data(using_revenues):
 
     # Load script direction data
     direction_dict = get_direction_strs(reverse_map, len(word_index))
+    print(direction_dict["tt0062622"])
 
     # Load movie metadata
     metadata_file = "movie_metadata_updated.csv"
@@ -125,19 +126,9 @@ def get_data(using_revenues):
     index_map = np.arange(len(data))
     np.random.shuffle(index_map)
 
-    print(len(freq_data[0]))
-    print(len(dir_data[0]))
-    print(len(freq_data))
-    print(len(dir_data))
-    print(type(freq_data))
-    print(type(dir_data))
-
     rand_data = [data[i] for i in index_map]
     rand_freqs = np.array([freq_data[i] for i in index_map]).astype(np.float).T
     rand_dir_data = np.array([dir_data[i] for i in index_map]).astype(np.float).T
-
-    print(rand_dir_data.shape)
-    print(rand_freqs.shape)
 
     # Select the input array
     X = np.array(rand_data)[:,:-2].T.astype(np.float)
@@ -293,8 +284,8 @@ if __name__ == "__main__":
               load_data(X_train, freq_train, dir_train),
               y_train.T,
               batch_size=500,
-              epochs=40,
-            #   callbacks=[early_stopping],
+              epochs=4000,
+              callbacks=[early_stopping],
               verbose=1,
               validation_data=(load_data(X_dev, freq_dev, dir_dev), y_dev.T)
          )

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# mkdir test_out
+mkdir test_out_2
 python3 main.py --rev --freq --cat --num > test_out_2/all_rev
 python3 main.py --freq --cat --num > test_out_2/all_score
 
